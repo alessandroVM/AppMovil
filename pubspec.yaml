@@ -16,7 +16,9 @@ dependencies:
   intl: ^0.18.1           # Formateo de fechas/números
   pdf: ^3.10.2            # Generación de reportes (opcional)
   syncfusion_flutter_datagrid: ^23.1.40  # Tablas dinámicas (opcional)
-  #qr_code_scanner: ^1.0.1
+  qr_code_scanner: ^1.0.1
+  flutter_barcode_scanner: ^2.0.0 # o la versión más reciente  #AGREGADO PARA QR
+  qr_flutter: ^4.1.0 #AGREGADO PARA QR
 
 dev_dependencies:
   flutter_test:
@@ -27,4 +29,5 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/images/      # Ruta para imágenes (opcional)
+#    - assets/images/      # Ruta para imágenes (opcional)
+

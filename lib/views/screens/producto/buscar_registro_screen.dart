@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../controllers/buscar_registro_controller.dart';
+import '../../../controllers/buscar_registro_controller.dart';
 
 class BuscarRegistroScreen extends StatelessWidget {
+  const BuscarRegistroScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     final controller = Provider.of<BuscarRegistroController>(context);
@@ -10,7 +12,7 @@ class BuscarRegistroScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: TextField(
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             hintText: 'Buscar...',
             icon: Icon(Icons.search),
           ),
