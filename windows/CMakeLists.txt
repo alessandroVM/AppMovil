@@ -6,6 +6,8 @@ project(app_movil LANGUAGES CXX)
 # the on-disk name of your application.
 set(BINARY_NAME "app_movil")
 
+set(CMAKE_CXX_STANDARD 17)# Necesario para las nuevas APIs de Firebase
+
 # Explicitly opt in to modern CMake behaviors to avoid warnings with recent
 # versions of CMake.
 cmake_policy(VERSION 3.14...3.25)

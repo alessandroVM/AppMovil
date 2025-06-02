@@ -1,75 +1,71 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:app_movil/core/services/api_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 
 
 class AuthController with ChangeNotifier {
-  final ApiService _apiService;
-  User? _user;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   bool _isLoading = false;
   String? _errorMessage;
 
-  AuthController(this._apiService);
-
-  User? get user => _user;
+  User? get user => _auth.currentUser; // Añade esta línea
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  // Inicializar controlador (llamar en main.dart)
-  Future<void> initialize() async {
-    _user = FirebaseAuth.instance.currentUser;
-    notifyListeners();
-  }
-
   Future<void> login(String email, String password) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-
     try {
-      _user = await _apiService.login(email, password);
-    } catch (e) {
-      _errorMessage = e.toString();
-      rethrow;
+      _isLoading = true;
+      notifyListeners();
+
+      await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      _errorMessage = null;
+    } on FirebaseAuthException catch (e) {
+      _errorMessage = _getErrorMessage(e);
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  Future<void> logout() async {
-    await _apiService.logout();
-    _user = null;
-    notifyListeners();
-  }
-
-  Future<void> register({
-    required String email,
-    required String password,
-    required String nombre,
-    required String rol,
-  }) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-
+  Future<void> register(String email, String password) async {
     try {
-      final usuarioData = {
-        'nombre': nombre,
-        'email': email,
-        'rol': rol,
-      };
+      _isLoading = true;
+      notifyListeners();
 
-      _user = await _apiService.registrarUsuario(
-        usuarioData: usuarioData,
+      await _auth.createUserWithEmailAndPassword(
+        email: email,
         password: password,
       );
-    } catch (e) {
-      _errorMessage = e.toString();
-      rethrow;
+
+      _errorMessage = null;
+    } on FirebaseAuthException catch (e) {
+      _errorMessage = _getErrorMessage(e);
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  String _getErrorMessage(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'user-not-found':
+        return 'Usuario no encontrado';
+      case 'wrong-password':
+        return 'Contraseña incorrecta';
+      case 'email-already-in-use':
+        return 'El email ya está en uso';
+      case 'weak-password':
+        return 'La contraseña es demasiado débil';
+      case 'invalid-email':
+        return 'Email inválido';
+      default:
+        return 'Error desconocido: ${e.message}';
     }
   }
 }

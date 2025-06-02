@@ -6,6 +6,7 @@ import 'package:app_movil/views/screens/producto/escaneo_qr_screen.dart';
 class MenuScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(title: const Text('MENÚ PRINCIPAL')),
       body: GridView.count(

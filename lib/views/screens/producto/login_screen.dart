@@ -35,7 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       // Navegar a home si el login es exitoso
       if (mounted) {
-        Navigator.pushReplacementNamed(context, '/');
+        Navigator.pushReplacementNamed(context, '/menu');
       }
     } catch (e) {
       if (mounted) {

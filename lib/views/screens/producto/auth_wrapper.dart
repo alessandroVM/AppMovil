@@ -1,20 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:app_movil/views/screens/producto/login_screen.dart';
-import 'package:app_movil/views/screens/producto/product_list_screen.dart';
-import 'package:app_movil/controllers/auth_controller.dart';
+import 'package:app_movil/views/screens/producto/menu_screen.dart';
 
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final auth = Provider.of<AuthController>(context);
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        // Mientras verifica el estado de autenticación
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
 
-    if (auth.user == null) {
-      return LoginScreen(); // remove 'const'
-    } else {
-      return const ProductListScreen();
-    }
+        // Usuario logueado = MenuScreen, sino LoginScreen
+        return snapshot.hasData ? const MenuScreen() : const LoginScreen();
+      },
+    );
   }
 }
