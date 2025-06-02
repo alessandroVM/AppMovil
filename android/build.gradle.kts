@@ -1,3 +1,16 @@
+// Top-level build file
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle:7.3.1") // Usa la versión actual
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.20") // Ajusta la versión
+        classpath("com.google.gms:google-services:4.3.15") // 🔥 Añade esto para Firebase
+    }
+} //FIREBASE
+
 allprojects {
     repositories {
         google()

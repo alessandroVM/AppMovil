@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../controllers/registrar_producto_controller.dart';
+import 'package:app_movil/controllers/product_controller.dart';
+
 
 class RegistrarProductoScreen extends StatefulWidget {
   const RegistrarProductoScreen({super.key});
@@ -27,28 +28,25 @@ class _RegistrarProductoScreenState extends State<RegistrarProductoScreen> {
     super.dispose();
   }
 
-  Future<void> _submitForm(RegistrarProductoController controller) async {
-    // Validar todos los campos del formulario
+  Future<void> _submitForm(ProductController controller) async { // ✅ Cambia el tipo
     if (!_formKey.currentState!.validate()) return;
 
     try {
-      await controller.registrarProducto(
-        nombre: _nombreController.text,
-        cantidad: int.parse(_cantidadController.text),
-        categoria: _categoria,
-        codigo: _codigoController.text,
-        serie: _serieController.text,
-        estatus: _estatus,
-      );
+      await controller.registrarProducto({ // ✅ Usa el método de ProductController
+        'nombre': _nombreController.text,
+        'cantidad': _cantidadController.text,
+        'categoria': _categoria,
+        'codigo': _codigoController.text,
+        'serie': _serieController.text,
+        'estatus': _estatus,
+      });
 
-      // Cerrar la pantalla si el registro fue exitoso
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      // Mostrar error en pantalla
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${controller.errorMessage ?? "Error desconocido"}'),
+            content: Text('Error: $e'), // ✅ Muestra el error directo
             duration: const Duration(seconds: 3),
           ),
         );
@@ -58,7 +56,7 @@ class _RegistrarProductoScreenState extends State<RegistrarProductoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Provider.of<RegistrarProductoController>(context);
+    final controller = Provider.of<ProductController>(context); // ✅ Cambia aquí
 
     return Scaffold(
       appBar: AppBar(

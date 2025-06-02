@@ -1,88 +1,104 @@
+// lib/views/auth/login_screen.dart
 import 'package:flutter/material.dart';
-import 'package:app_movil/views/screens/producto/menu_screen.dart';
-import 'package:app_movil/views/screens/producto/registro_usuario_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:app_movil/controllers/auth_controller.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
   @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final auth = context.read<AuthController>();
+
+    try {
+      await auth.login(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
+
+      // Navegar a home si el login es exitoso
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(auth.errorMessage ?? 'Error desconocido')),
+        );
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthController>();
+
     return Scaffold(
+      appBar: AppBar(title: const Text('Iniciar Sesión')),
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-                'CONTROL DE INVENTARIO',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)
-            ),
-            const SizedBox(height: 40),
-
-            // Campo de email
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(
-                labelText: 'Correo electrónico',
-                border: OutlineInputBorder(),
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: _emailController,
+                decoration: const InputDecoration(labelText: 'Email'),
+                keyboardType: TextInputType.emailAddress,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor ingrese su email';
+                  }
+                  return null;
+                },
               ),
-            ),
-            const SizedBox(height: 20),
-
-            // Campo de contraseña
-            TextField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'Contraseña',
-                border: OutlineInputBorder(),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _passwordController,
+                decoration: const InputDecoration(labelText: 'Contraseña'),
+                obscureText: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Por favor ingrese su contraseña';
+                  }
+                  if (value.length < 6) {
+                    return 'La contraseña debe tener al menos 6 caracteres';
+                  }
+                  return null;
+                },
               ),
-            ),
-            const SizedBox(height: 30),
-
-            // Botón de Ingresar
-            ElevatedButton(
-              onPressed: () => Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (_) => MenuScreen()),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: auth.isLoading ? null : _submit,
+                child: auth.isLoading
+                    ? const CircularProgressIndicator()
+                    : const Text('Iniciar Sesión'),
               ),
-              child: const Text('INGRESAR'),
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 50),
+              TextButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/registro-usuario');
+                },
+                child: const Text('¿No tienes cuenta? Regístrate'),
               ),
-            ),
-            const SizedBox(height: 20),
-
-            // Botón de Registro (NUEVO)
-            TextButton(
-              onPressed: () {
-                // Navegación a la pantalla de registro
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => RegistroUsuarioScreen(),
-                  ),
-                );
-              },
-              child: const Text.rich(
-                TextSpan(
-                  text: '¿No tienes cuenta? ',
-                  style: TextStyle(color: Colors.black87),
-                  children: [
-                    TextSpan(
-                      text: 'Regístrate aquí',
-                      style: TextStyle(
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

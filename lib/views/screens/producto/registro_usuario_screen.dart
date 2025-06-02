@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:app_movil/controllers/usuario_controller.dart';
 import 'package:app_movil/models/usuario_model.dart';
 import 'package:app_movil/views/screens/producto/login_screen.dart';
+import 'package:app_movil/controllers/auth_controller.dart'; // Cambiamos de UsuarioController a AuthController
+import 'package:app_movil/views/screens/producto/login_screen.dart';
+
 
 class RegistroUsuarioScreen extends StatefulWidget {
   const RegistroUsuarioScreen({super.key});
@@ -29,57 +32,54 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
   }
 
   Future<void> _registrarUsuario() async {
-    if (_formKey.currentState!.validate()) {
-      if (_passwordController.text != _confirmPasswordController.text) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Las contraseñas no coinciden')),
-        );
-        return;
-      }
+    if (!_formKey.currentState!.validate()) return;
 
-      final nuevoUsuario = Usuario(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        nombre: _nombreController.text,
-        email: _emailController.text,
+    if (_passwordController.text != _confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Las contraseñas no coinciden')),
+      );
+      return;
+    }
+
+    try {
+      final auth = Provider.of<AuthController>(context, listen: false);
+      await auth.register(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+        nombre: _nombreController.text.trim(),
         rol: _rolSeleccionado,
       );
 
-      try {
-        final controller = Provider.of<UsuarioController>(context, listen: false);
-        await controller.registrarUsuario(
-          usuario: nuevoUsuario,
-          password: _passwordController.text,
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Usuario registrado exitosamente!')),
         );
 
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Usuario registrado exitosamente')),
-          );
+        // Navegación de regreso al login con reemplazo
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+        );
 
-          // Navegación de regreso al login con reemplazo
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => LoginScreen()),
-          );
-
-          // Opcional: Limpiar los campos antes de volver
-          _nombreController.clear();
-          _emailController.clear();
-          _passwordController.clear();
-          _confirmPasswordController.clear();
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error al registrar: ${e.toString()}')),
-          );
-        }
+        // Limpiar los campos
+        _nombreController.clear();
+        _emailController.clear();
+        _passwordController.clear();
+        _confirmPasswordController.clear();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al registrar: ${e.toString()}')),
+        );
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthController>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Registrar Nuevo Usuario'),
@@ -91,6 +91,7 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
           key: _formKey,
           child: ListView(
             children: [
+              // Campo Nombre Completo
               TextFormField(
                 controller: _nombreController,
                 decoration: const InputDecoration(
@@ -101,10 +102,15 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
                   if (value == null || value.isEmpty) {
                     return 'Por favor ingrese su nombre';
                   }
+                  if (value.length < 3) {
+                    return 'El nombre debe tener al menos 3 caracteres';
+                  }
                   return null;
                 },
               ),
               const SizedBox(height: 15),
+
+              // Campo Email
               TextFormField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
@@ -116,13 +122,15 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
                   if (value == null || value.isEmpty) {
                     return 'Por favor ingrese su correo';
                   }
-                  if (!value.contains('@')) {
+                  if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
                     return 'Ingrese un correo válido';
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 15),
+
+              // Campo Contraseña
               TextFormField(
                 controller: _passwordController,
                 obscureText: true,
@@ -141,6 +149,8 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
                 },
               ),
               const SizedBox(height: 15),
+
+              // Campo Confirmar Contraseña
               TextFormField(
                 controller: _confirmPasswordController,
                 obscureText: true,
@@ -152,10 +162,15 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
                   if (value == null || value.isEmpty) {
                     return 'Por favor confirme su contraseña';
                   }
+                  if (value != _passwordController.text) {
+                    return 'Las contraseñas no coinciden';
+                  }
                   return null;
                 },
               ),
               const SizedBox(height: 20),
+
+              // Selector de Rol
               DropdownButtonFormField<String>(
                 value: _rolSeleccionado,
                 items: const [
@@ -167,24 +182,38 @@ class _RegistroUsuarioScreenState extends State<RegistroUsuarioScreen> {
                     value: 'admin',
                     child: Text('Administrador'),
                   ),
+                  // Puedes agregar más roles si es necesario
                 ],
                 onChanged: (value) {
-                  setState(() {
-                    _rolSeleccionado = value!;
-                  });
+                  if (value != null) {
+                    setState(() {
+                      _rolSeleccionado = value;
+                    });
+                  }
                 },
                 decoration: const InputDecoration(
                   labelText: 'Rol del Usuario',
                   border: OutlineInputBorder(),
                 ),
+                validator: (value) {
+                  if (value == null) {
+                    return 'Por favor seleccione un rol';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 30),
+
+              // Botón de Registro
               ElevatedButton(
-                onPressed: _registrarUsuario,
+                onPressed: auth.isLoading ? null : _registrarUsuario,
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 15),
+                  minimumSize: const Size(double.infinity, 50),
                 ),
-                child: const Text('Registrar Usuario'),
+                child: auth.isLoading
+                    ? const CircularProgressIndicator()
+                    : const Text('Registrar Usuario'),
               ),
             ],
           ),

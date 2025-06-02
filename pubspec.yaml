@@ -16,9 +16,13 @@ dependencies:
   intl: ^0.18.1           # Formateo de fechas/números
   pdf: ^3.10.2            # Generación de reportes (opcional)
   syncfusion_flutter_datagrid: ^23.1.40  # Tablas dinámicas (opcional)
-  qr_code_scanner: ^1.0.1
+  # qr_code_scanner: ^1.0.1flutterfire configure --project=inventario-canvia-app #no corre
   flutter_barcode_scanner: ^2.0.0 # o la versión más reciente  #AGREGADO PARA QR
   qr_flutter: ^4.1.0 #AGREGADO PARA QR
+  firebase_core: ^2.18.0 #AGREGADO FIREBASE
+  firebase_auth: ^4.11.0 #AGREGADO FIREBASEflutter clean
+  cloud_firestore: ^4.8.0 #AGREGADO FIREBASE
+  google_sign_in: ^6.1.0  # Opcional para autenticación con Google
 
 dev_dependencies:
   flutter_test:

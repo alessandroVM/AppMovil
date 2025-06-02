@@ -1,5 +1,6 @@
 import 'package:app_movil/controllers/product_controller.dart'; // Importación añadida
 import 'package:app_movil/controllers/usuario_controller.dart'; // Importación añadida
+import 'package:app_movil/views/screens/producto/auth_wrapper.dart';
 import 'package:app_movil/views/screens/producto/escaneo_qr_screen.dart'; // Importación añadida
 import 'package:app_movil/views/screens/producto/login_screen.dart';
 import 'package:app_movil/views/screens/producto/menu_screen.dart';
@@ -7,19 +8,39 @@ import 'package:app_movil/views/screens/producto/registro_usuario_screen.dart'; 
 import 'package:app_movil/views/screens/producto/reportes_screen.dart'; // Importación añadida
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'controllers/buscar_registro_controller.dart';
-import 'controllers/registrar_producto_controller.dart';
-import 'views/screens/producto/buscar_registro_screen.dart'; // Importación añadida
-import 'views/screens/producto/registrar_producto_screen.dart'; // Importación añadida
+import 'package:app_movil/controllers/auth_controller.dart';
+import 'package:app_movil/core/services/api_service.dart';
+import 'package:app_movil/views/screens/producto/buscar_registro_screen.dart'; // Importación añadida
+import 'package:app_movil/views/screens/producto/registrar_producto_screen.dart';
 
-void main() {
+import 'package:firebase_core/firebase_core.dart'; // Firebase
+import 'firebase_options.dart'; // Firebase
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Inicializar Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  final apiService = ApiService();
+
+
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => UsuarioController()), // Añade esta línea
-        ChangeNotifierProvider(create: (_) => BuscarRegistroController()),
-        ChangeNotifierProvider(create: (_) => RegistrarProductoController()),
-        ChangeNotifierProvider(create: (_) => ProductController()), // Añade esta línea
+        Provider<ApiService>(create: (_) => apiService),
+        ChangeNotifierProvider(
+          create: (_) => AuthController(apiService)..initialize(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ProductController(apiService),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => UsuarioController(apiService), // Pasar apiService aquí
+        ),
+        //ChangeNotifierProvider(create: (_) => BuscarRegistroController()),
         // Agrega más controladores aquí
       ],
       child: const InventarioCanviaApp(),
@@ -45,7 +66,8 @@ class InventarioCanviaApp extends StatelessWidget {
       ),
       initialRoute: '/login',
       routes: {
-        '/login': (_) => LoginScreen(),
+        '/': (context) => const AuthWrapper(),
+        '/login': (context) => LoginScreen(),
         '/registro-usuario': (context) => RegistroUsuarioScreen(),
         '/menu': (_) => MenuScreen(),
         '/buscar': (_) => BuscarRegistroScreen(),
