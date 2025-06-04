@@ -19,7 +19,7 @@ class AuthWrapper extends StatelessWidget {
         }
 
         // Usuario logueado = MenuScreen, sino LoginScreen
-        return snapshot.hasData ? const MenuScreen() : const LoginScreen();
+        return snapshot.hasData ? MenuScreen() : const LoginScreen();
       },
     );
   }
