@@ -32,6 +32,9 @@ class _RegistrarProductoScreenState extends State<RegistrarProductoScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     try {
+      // Convertir cantidad a número
+      final cantidad = int.tryParse(_cantidadController.text) ?? 0;
+
       await controller.registrarProducto({ // ✅ Usa el método de ProductController
         'nombre': _nombreController.text,
         'cantidad': _cantidadController.text,

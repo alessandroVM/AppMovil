@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:app_movil/controllers/product_controller.dart';
 import 'package:app_movil/models/product_model.dart';
 
+import 'detalle_producto_screen.dart';
+
 
 class BuscarRegistroScreen extends StatefulWidget {
   const BuscarRegistroScreen({super.key});
@@ -15,9 +17,15 @@ class _BuscarRegistroScreenState extends State<BuscarRegistroScreen> {
   final TextEditingController _searchController = TextEditingController();
   bool _isInitialLoad = true;
   String _currentQuery = ''; // Variable adicional para almacenar la consulta actual
+  String? _errorMessage;
 
   @override
   void initState() {
+    super.initState();
+    _loadInitialData();
+  }
+
+  /*void initState() {
     super.initState();
     final productController = Provider.of<ProductController>(context, listen: false);
     if (productController.products.isEmpty) {
@@ -26,6 +34,23 @@ class _BuscarRegistroScreenState extends State<BuscarRegistroScreen> {
       });
     } else {
       _isInitialLoad = false;
+    }
+  }*/
+
+  Future<void> _loadInitialData() async {
+    try {
+      final productController = Provider.of<ProductController>(context, listen: false);
+      if (productController.products.isEmpty) {
+        await productController.loadProducts();
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Error al cargar productos: ${e.toString()}';
+      });
+    } finally {
+      if (mounted) {
+        setState(() => _isInitialLoad = false);
+      }
     }
   }
 
@@ -70,6 +95,15 @@ class _BuscarRegistroScreenState extends State<BuscarRegistroScreen> {
       return const Center(child: CircularProgressIndicator());
     }
 
+    if (_errorMessage != null) {
+      return Center(
+        child: Text(
+          _errorMessage!,
+          style: const TextStyle(color: Colors.red),
+        ),
+      );
+    }
+
     if (controller.isSearching) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -108,6 +142,14 @@ class _BuscarRegistroScreenState extends State<BuscarRegistroScreen> {
         onTap: () {
           // Navegar a pantalla de detalle si es necesario
           // Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailScreen(product: producto)));
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => DetalleProductoScreen(producto: producto),
+              ),
+          ); // onTap
+
+
         },
       ),
     );

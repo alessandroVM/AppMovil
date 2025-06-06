@@ -14,8 +14,23 @@ class ApiService {
 
   Future<List<Producto>> getProductsFromApi() async {
     try {
-      final snapshot = await _firestore.collection('productos').get();
-      return snapshot.docs.map((doc) => Producto.fromJson(doc.data())).toList();
+      final querySnapshot = await _firestore.collection('productos').get();
+      return querySnapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        // Asegura que los datos tengan el formato correcto
+        final productoData = {
+          'id': doc.id,
+          'codigo': data['codigo'] ?? '',
+          'nombre': data['nombre'] ?? '',
+          'categoria': data['categoria'] ?? '',
+          'serie': data['serie'] ?? '',
+          'estatus': data['estatus'] ?? 'Activo',
+          'cantidad': data['cantidad'],
+          'codigoQR': data['codigoQR'] ?? '',
+          'fechaRegistro': data['fechaRegistro'] ?? DateTime.now().toIso8601String(),
+        };
+        return Producto.fromJson(productoData);
+      }).toList();
     } catch (e) {
       throw Exception('Error al obtener productos: $e');
     }
@@ -24,8 +39,11 @@ class ApiService {
   Future<Producto> registrarProducto(Map<String, dynamic> productoData) async {
     try {
       final docRef = await _firestore.collection('productos').add(productoData);
-      final producto = Producto.fromJson({...productoData, 'id': docRef.id});
-      return producto;
+      final doc = await docRef.get();
+      return Producto.fromJson({
+        'id': doc.id,
+        ...doc.data() as Map<String, dynamic>,
+      });
     } catch (e) {
       throw Exception('Error al registrar producto: $e');
     }
@@ -35,7 +53,10 @@ class ApiService {
     try {
       await _firestore.collection('productos').doc(id).update(nuevosDatos);
       final doc = await _firestore.collection('productos').doc(id).get();
-      return Producto.fromJson(doc.data()!);
+      return Producto.fromJson({
+        'id': doc.id,
+        ...doc.data() as Map<String, dynamic>,
+      });
     } catch (e) {
       throw Exception('Error al actualizar producto: $e');
     }
@@ -67,14 +88,19 @@ class ApiService {
 
   Future<List<Producto>> buscarProductos(String query) async {
     try {
-      final allProducts = await _firestore.collection('productos').get();
-      return allProducts.docs
-          .where((doc) =>
-      doc['nombre'].toString().toLowerCase().contains(query.toLowerCase()) ||
-          doc['codigo'].toString().toLowerCase().contains(query.toLowerCase()) ||
-          doc['codigoQR'].toString().toLowerCase().contains(query.toLowerCase()))
-          .map((doc) => Producto.fromJson(doc.data()))
-          .toList();
+      if (query.isEmpty) return [];
+
+      final querySnapshot = await _firestore.collection('productos')
+          .where('nombre', isGreaterThanOrEqualTo: query)
+          .where('nombre', isLessThan: query + 'z')
+          .get();
+
+      return querySnapshot.docs.map((doc) {
+        return Producto.fromJson({
+          'id': doc.id,
+          ...doc.data() as Map<String, dynamic>,
+        });
+      }).toList();
     } catch (e) {
       throw Exception("Error al buscar productos: $e");
     }

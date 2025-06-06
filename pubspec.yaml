@@ -28,6 +28,8 @@ dev_dependencies:
     sdk: flutter          # Para pruebas widget
   flutter_lints: ^3.0.0   # Análisis de código
   mockito: ^5.4.0         # Para pruebas unitarias (opcional)
+  flutter_charts: ^0.5.2 # Para reportes
+  pie_chart: ^5.4.0 # Pie Cahrt
 
 flutter:
   uses-material-design: true

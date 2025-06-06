@@ -31,6 +31,7 @@ class ProductController with ChangeNotifier {
       _products = await _apiService.getProductsFromApi();
     } catch (e) {
       debugPrint('Error cargando productos: $e');
+      _products = []; // Asegúrate de limpiar la lista en caso de error
       rethrow;
     } finally {
       _isLoading = false;
@@ -114,7 +115,7 @@ class ProductController with ChangeNotifier {
         final searchTerm = query.toLowerCase();
         return producto.nombre.toLowerCase().contains(searchTerm) ||
             (producto.codigo?.toLowerCase().contains(searchTerm) ?? false) ||
-            producto.codigoQR.toLowerCase().contains(searchTerm) ||
+            (producto.codigoQR.toLowerCase().contains(searchTerm)) ||
             (producto.serie?.toLowerCase().contains(searchTerm) ?? false);
       }).toList();
 
@@ -124,7 +125,16 @@ class ProductController with ChangeNotifier {
         _resultadosBusqueda = results;
 
         // Opcional: agregar los resultados encontrados a la lista local
-        _products.addAll(results.where((p) => !_products.any((existing) => existing.id == p.id)));
+        //_products.addAll(results.where((p) => !_products.any((existing) => existing.id == p.id))); // ANTERIOR
+
+        // Agrega los nuevos resultados a la lista local //NUEVO
+        for (var p in results) {
+          if (!_products.any((existing) => existing.id == p.id)) {
+            _products.add(p);
+          }
+        }
+
+
       }
     } catch (e) {
       debugPrint('Error buscando productos: $e');
