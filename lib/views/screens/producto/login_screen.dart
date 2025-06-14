@@ -31,6 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
       await auth.login(
         _emailController.text.trim(),
         _passwordController.text.trim(),
+        context,
       );
 
       // Navegar a home si el login es exitoso

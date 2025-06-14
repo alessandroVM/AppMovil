@@ -17,7 +17,10 @@ class _RegistrarProductoScreenState extends State<RegistrarProductoScreen> {
   final _serieController = TextEditingController();
   final _cantidadController = TextEditingController();
   String _estatus = 'Activo'; // Valor por defecto
-  String _categoria = 'General'; // Valor por defecto
+  String _categoria = 'Nuevo'; // Valor por defecto
+  String _codigoProducto = 'Cargando...'; // Cambiamos a String
+  bool _cargandoCodigo = true;
+
 
   @override
   void dispose() {
@@ -72,15 +75,37 @@ class _RegistrarProductoScreenState extends State<RegistrarProductoScreen> {
           key: _formKey,
           child: ListView(
             children: [
-              // Campo: Código del Producto (Obligatorio)
-              TextFormField(
+              // Campo: Código del Producto (Autogenerado)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Row(
+                  children: [
+                    const Text('Código del Producto: ',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(width: 10),
+                    _cargandoCodigo
+                        ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 3),
+                    )
+                        : Text(_codigoProducto,
+                        style: const TextStyle(fontSize: 16)),
+                  ],
+                ),
+              ),
+              /* TextFormField(
                 controller: _codigoController,
                 decoration: const InputDecoration(
                   labelText: 'Código del Producto',
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) => value!.isEmpty ? 'Este campo es obligatorio' : null,
-              ),
+              ),*/
               const SizedBox(height: 15),
 
               // Campo: Descripción/Nombre (Obligatorio)
@@ -123,7 +148,7 @@ class _RegistrarProductoScreenState extends State<RegistrarProductoScreen> {
               // Dropdown: Estatus (Obligatorio)
               DropdownButtonFormField<String>(
                 value: _estatus,
-                items: ['Activo', 'Inactivo'].map((e) => DropdownMenuItem(
+                items: ['Activo', 'Baja', 'Custodia', 'Fuera de Garantía'].map((e) => DropdownMenuItem(
                   value: e,
                   child: Text(e),
                 )).toList(),
@@ -138,13 +163,13 @@ class _RegistrarProductoScreenState extends State<RegistrarProductoScreen> {
               // Dropdown: Categoría (Obligatorio)
               DropdownButtonFormField<String>(
                 value: _categoria,
-                items: ['Construcción', 'Electrónica', 'General'].map((e) => DropdownMenuItem(
+                items: ['Fallado', 'Mantenimiento', 'No Operativo', 'Nuevo', 'Operativo', 'Siniestro', 'Prestamo', 'Venta'].map((e) => DropdownMenuItem(
                   value: e,
                   child: Text(e),
                 )).toList(),
                 onChanged: (value) => setState(() => _categoria = value!),
                 decoration: const InputDecoration(
-                  labelText: 'Categoría',
+                  labelText: 'Situación del equipo',
                   border: OutlineInputBorder(),
                 ),
               ),

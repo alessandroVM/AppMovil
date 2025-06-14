@@ -21,9 +21,12 @@ class _BuscarRegistroScreenState extends State<BuscarRegistroScreen> {
 
   @override
   void initState() {
-    super.initState();
-    _loadInitialData();
-  }
+  super.initState();
+  //_loadInitialData();
+  // Verifica si ya hay datos cargados
+  final productController = Provider.of<ProductController>(context, listen: false);
+  _isInitialLoad = productController.products.isEmpty;
+}
 
   /*void initState() {
     super.initState();
@@ -37,6 +40,7 @@ class _BuscarRegistroScreenState extends State<BuscarRegistroScreen> {
     }
   }*/
 
+  /*
   Future<void> _loadInitialData() async {
     try {
       final productController = Provider.of<ProductController>(context, listen: false);
@@ -53,6 +57,7 @@ class _BuscarRegistroScreenState extends State<BuscarRegistroScreen> {
       }
     }
   }
+  */
 
   @override
   void dispose() {
@@ -91,7 +96,7 @@ class _BuscarRegistroScreenState extends State<BuscarRegistroScreen> {
   }
 
   Widget _buildBody(ProductController controller) {
-    if (_isInitialLoad) {
+    if (controller.isLoading && _isInitialLoad) {
       return const Center(child: CircularProgressIndicator());
     }
 

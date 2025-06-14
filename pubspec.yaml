@@ -31,6 +31,9 @@ dev_dependencies:
   flutter_charts: ^0.5.2 # Para reportes
   pie_chart: ^5.4.0 # Pie Cahrt
 
+scripts:
+  postinstall: "bash post_install.sh"
+
 flutter:
   uses-material-design: true
   assets:

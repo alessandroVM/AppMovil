@@ -4,7 +4,8 @@ import 'package:app_movil/core/services/api_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:app_movil/models/usuario_model.dart';
-
+import 'package:app_movil/controllers/product_controller.dart';
+import 'package:provider/provider.dart';
 
 class AuthController with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -27,25 +28,29 @@ class AuthController with ChangeNotifier {
   }
 
 
-  Future<void> login(String email, String password) async {
-    try {
-      _isLoading = true;
-      notifyListeners();
+  Future<void> login(String email, String password, BuildContext context) async {
+  try {
+    _isLoading = true;
+    notifyListeners();
 
-      await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+    await _auth.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
 
-      _errorMessage = null;
-    } on FirebaseAuthException catch (e) {
-      _errorMessage = _getErrorMessage(e);
-      rethrow;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+    // Cargar productos después del login exitoso
+    final productController = Provider.of<ProductController>(context, listen: false);
+    await productController.loadProducts();
+
+    _errorMessage = null;
+  } on FirebaseAuthException catch (e) {
+    _errorMessage = _getErrorMessage(e);
+    rethrow;
+  } finally {
+    _isLoading = false;
+    notifyListeners();
   }
+}
 
   Future<void> register({
     required String email,

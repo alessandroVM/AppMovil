@@ -1,5 +1,6 @@
 import 'package:app_movil/models/product_model.dart';
 import 'package:app_movil/core/services/api_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class ProductController with ChangeNotifier {
@@ -184,4 +185,28 @@ class ProductController with ChangeNotifier {
     _productoEscaneado = null;
     notifyListeners();
   }
+
+  // Generador de codigo de producto
+  Future<String> obtenerProximoCodigo() async {
+    final docRef = FirebaseFirestore.instance.collection('contadores').doc('productos');
+
+    return FirebaseFirestore.instance.runTransaction((transaction) async {
+      final snapshot = await transaction.get(docRef);
+
+      if (!snapshot.exists) {
+        transaction.set(docRef, {'ultimoCodigo': 0});
+        return 'PROD-1';
+      }
+
+      final ultimoCodigo = snapshot.data()!['ultimoCodigo'] as int;
+      final nuevoCodigo = ultimoCodigo + 1;
+
+      transaction.update(docRef, {'ultimoCodigo': nuevoCodigo});
+      return 'PROD-$nuevoCodigo';
+    });
+  }
+
+
+
+
 }

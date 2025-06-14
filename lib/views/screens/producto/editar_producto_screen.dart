@@ -16,10 +16,11 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nombreController;
   late TextEditingController _codigoController;
-  late TextEditingController _categoriaController;
+  //late TextEditingController _categoriaController;
   late TextEditingController _serieController;
   late TextEditingController _cantidadController;
   late TextEditingController _codigoQrController;
+  late String _categoria;
   late String _estatus;
 
   @override
@@ -27,10 +28,11 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
     super.initState();
     _nombreController = TextEditingController(text: widget.producto.nombre);
     _codigoController = TextEditingController(text: widget.producto.codigo);
-    _categoriaController = TextEditingController(text: widget.producto.categoria);
+    //_categoriaController = TextEditingController(text: widget.producto.categoria);
     _serieController = TextEditingController(text: widget.producto.serie);
     _cantidadController = TextEditingController(text: widget.producto.cantidad.toString());
     _codigoQrController = TextEditingController(text: widget.producto.codigoQR);
+    _categoria = widget.producto.estatus;
     _estatus = widget.producto.estatus;
   }
 
@@ -38,7 +40,7 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
   void dispose() {
     _nombreController.dispose();
     _codigoController.dispose();
-    _categoriaController.dispose();
+    //_categoriaController.dispose();
     _serieController.dispose();
     _cantidadController.dispose();
     _codigoQrController.dispose();
@@ -65,7 +67,11 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
             children: [
               _buildTextField(_nombreController, 'Nombre', Icons.shopping_bag),
               _buildTextField(_codigoController, 'Código', Icons.code),
-              _buildTextField(_categoriaController, 'Categoría', Icons.category),
+              //_buildTextField(_categoriaController, 'Categoría', Icons.category),
+
+              const SizedBox(height: 16),
+              _buildCategoriaDropdown(),
+
               _buildTextField(_serieController, 'Serie', Icons.confirmation_number),
               _buildTextField(_cantidadController, 'Cantidad', Icons.format_list_numbered, isNumber: true),
               _buildTextField(_codigoQrController, 'Código QR', Icons.qr_code),
@@ -105,6 +111,37 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
     );
   }
 
+  Widget _buildCategoriaDropdown() {
+    return DropdownButtonFormField<String>(
+      value: _categoria,
+      decoration: InputDecoration(
+        labelText: 'Categoria',
+        //prefixIcon: const Icon(Icons.status), // EVALUAR
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+      items: const [
+        DropdownMenuItem(value: 'Fallado', child: Text('Fallado')),
+        DropdownMenuItem(value: 'Mantenimiento', child: Text('Mantenimiento')),
+        DropdownMenuItem(value: 'No Operativo', child: Text('No Operativo')),
+        DropdownMenuItem(value: 'Nuevo', child: Text('Nuevo')),
+        DropdownMenuItem(value: 'Operativo', child: Text('Operativo')),
+        DropdownMenuItem(value: 'Siniestro', child: Text('Siniestro')),
+        DropdownMenuItem(value: 'Prestamo', child: Text('Prestamo')),
+        DropdownMenuItem(value: 'Venta', child: Text('Venta')),
+      ],
+      onChanged: (value) {
+        if (value != null) {
+          setState(() {
+            _categoria = value;
+          });
+        }
+      },
+    );
+  }
+
+
   Widget _buildEstatusDropdown() {
     return DropdownButtonFormField<String>(
       value: _estatus,
@@ -117,8 +154,9 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
       ),
       items: const [
         DropdownMenuItem(value: 'Activo', child: Text('Activo')),
-        DropdownMenuItem(value: 'Inactivo', child: Text('Inactivo')),
-        DropdownMenuItem(value: 'Mantenimiento', child: Text('Mantenimiento')),
+        DropdownMenuItem(value: 'Baja', child: Text('Baja')),
+        DropdownMenuItem(value: 'Custodia', child: Text('Custodia')),
+        DropdownMenuItem(value: 'Fuera de Garantía', child: Text('Fuera de Garantía')),
       ],
       onChanged: (value) {
         if (value != null) {
@@ -156,7 +194,8 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
       final datosActualizados = {
         'nombre': _nombreController.text,
         'codigo': _codigoController.text,
-        'categoria': _categoriaController.text,
+        //'categoria': _categoriaController.text,
+        'categoria': _categoria,
         'serie': _serieController.text,
         'cantidad': int.tryParse(_cantidadController.text) ?? 0,
         'codigoQR': _codigoQrController.text,
