@@ -26,7 +26,7 @@ class Producto {
       id: json['id'],
       codigo: json['codigo'] ?? '',      // Añadido
       nombre: json['nombre'],
-      categoria: json['categoria'],
+      categoria: json['categoria'] ?? 'Nuevo', // Valor por defecto
       serie: json['serie'] ?? '',        // Añadido
       estatus: json['estatus'] ?? 'Activo', // Valor por defecto
       cantidad: _parseCantidad(json['cantidad']),  // Función de parseo especial

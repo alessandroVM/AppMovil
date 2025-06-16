@@ -12,37 +12,114 @@ class RegistrarProductoScreen extends StatefulWidget {
 
 class _RegistrarProductoScreenState extends State<RegistrarProductoScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _codigoController = TextEditingController();
+  //final _codigoController = TextEditingController();
   final _nombreController = TextEditingController();
   final _serieController = TextEditingController();
   final _cantidadController = TextEditingController();
   String _estatus = 'Activo'; // Valor por defecto
   String _categoria = 'Nuevo'; // Valor por defecto
-  String _codigoProducto = 'Cargando...'; // Cambiamos a String
-  bool _cargandoCodigo = true;
+  //String _codigoProducto = 'Cargando...'; // Cambiamos a String // op1
+  //bool _cargandoCodigo = true;                                  // op1
+  String? _codigoProducto; // Cambiado a nullable para manejar estado inicial
+  bool _cargandoCodigo = false; // Inicialmente no está cargando
+  bool _generandoCodigo = false;
+
+  /*@override
+  void initState() {
+    super.initState();
+    _generarCodigo(); // Generar código inmediatamente
+  }*/
+/*
+  Future<void> _generarCodigo() async {
+    final controller = Provider.of<ProductController>(context, listen: false);
+    try {
+      final codigo = await controller.obtenerProximoCodigo();
+      if (mounted) {
+        setState(() {
+          _codigoProducto = codigo;
+          _cargandoCodigo = false;
+        });
+      }
+    } catch (e, stackTrace) {
+      debugPrint('Error generando código: $e');
+      debugPrint(stackTrace.toString());
+      if (mounted) {
+        setState(() {
+          _codigoProducto = 'COD-ERR';
+          _cargandoCodigo = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error generando código. Intente nuevamente.'),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }*/
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _generarCodigo();
+    });
+  }
+
+  Future<void> _generarCodigo() async {
+    if (_generandoCodigo) return;
+
+    setState(() => _generandoCodigo = true);
+
+    final controller = Provider.of<ProductController>(context, listen: false);
+    try {
+      final codigo = await controller.obtenerProximoCodigo();
+      if (mounted) {
+        setState(() => _codigoProducto = codigo);
+      }
+    } catch (e, stackTrace) {
+      debugPrint('Error generando código: $e');
+      debugPrint(stackTrace.toString());
+      if (mounted) {
+        setState(() => _codigoProducto = 'COD-ERR');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error generando código. Intente nuevamente.'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _generandoCodigo = false);
+      }
+    }
+  }
 
 
   @override
   void dispose() {
-    _codigoController.dispose();
+    //_codigoController.dispose();
     _nombreController.dispose();
     _serieController.dispose();
     _cantidadController.dispose();
     super.dispose();
   }
 
+
   Future<void> _submitForm(ProductController controller) async { // ✅ Cambia el tipo
     if (!_formKey.currentState!.validate()) return;
 
     try {
       // Convertir cantidad a número
-      final cantidad = int.tryParse(_cantidadController.text) ?? 0;
+      //final cantidad = int.tryParse(_cantidadController.text) ?? 0;
 
       await controller.registrarProducto({ // ✅ Usa el método de ProductController
         'nombre': _nombreController.text,
         'cantidad': _cantidadController.text,
         'categoria': _categoria,
-        'codigo': _codigoController.text,
+        //'codigo': _codigoController.text,
+        'codigo': _codigoProducto, // Usamos el código autogenerado
         'serie': _serieController.text,
         'estatus': _estatus,
       });
@@ -87,14 +164,35 @@ class _RegistrarProductoScreenState extends State<RegistrarProductoScreen> {
                     const Text('Código del Producto: ',
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(width: 10),
-                    _cargandoCodigo
-                        ? const SizedBox(
+                    //_cargandoCodigo           // op1
+                    //    ? const SizedBox(     // op1
+                    /*if (_codigoProducto == null || _cargandoCodigo)   //op2
+                        const SizedBox(
                       width: 20,
                       height: 20,
                       child: CircularProgressIndicator(strokeWidth: 3),
-                    )
-                        : Text(_codigoProducto,
-                        style: const TextStyle(fontSize: 16)),
+                    )*/
+
+                    if (_codigoProducto == null)
+                      const Expanded(
+                        child: Text('Generando código...',
+                            style: TextStyle(color: Colors.grey)),
+                      )
+                    else if (_generandoCodigo)
+                      const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 3),
+                      )
+
+                        //: Text(_codigoProducto,   //op1
+                    else                            //op2
+                      Text(                         //op2
+                          _codigoProducto!,         //op2
+                        style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue)),
                   ],
                 ),
               ),
@@ -106,7 +204,7 @@ class _RegistrarProductoScreenState extends State<RegistrarProductoScreen> {
                 ),
                 validator: (value) => value!.isEmpty ? 'Este campo es obligatorio' : null,
               ),*/
-              const SizedBox(height: 15),
+              const SizedBox(height: 20),
 
               // Campo: Descripción/Nombre (Obligatorio)
               TextFormField(

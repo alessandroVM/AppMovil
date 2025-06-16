@@ -186,25 +186,66 @@ class ProductController with ChangeNotifier {
     notifyListeners();
   }
 
-  // Generador de codigo de producto
+  // Generador de codigo de producto v1
+  /*Future<String> obtenerProximoCodigo() async {
+    try {
+      final docRef = FirebaseFirestore.instance.collection('contadores').doc('codigos_productos');
+
+      return await FirebaseFirestore.instance.runTransaction((transaction) async {
+        final snapshot = await transaction.get(docRef);
+
+        if (!snapshot.exists) {
+          transaction.set(docRef, {'ultimoCodigo': 0});
+          return 'COD-1';
+        }
+
+        final ultimoCodigo = snapshot.data()!['ultimoCodigo'] as int;
+        final nuevoCodigo = ultimoCodigo + 1;
+
+        transaction.update(docRef, {'ultimoCodigo': nuevoCodigo});
+        return 'COD-$nuevoCodigo';
+      });
+    } catch (e) {
+      debugPrint('Error generando código: $e');
+      return 'COD-ERR'; // Valor de respaldo
+    }
+  }*/
+
+  // Generador de codigo de producto v2
   Future<String> obtenerProximoCodigo() async {
-    final docRef = FirebaseFirestore.instance.collection('contadores').doc('productos');
+    try {
+      final docRef = FirebaseFirestore.instance.collection('contadores').doc('codigos_productos');
 
-    return FirebaseFirestore.instance.runTransaction((transaction) async {
-      final snapshot = await transaction.get(docRef);
+      // Agrega logs para depuración
+      debugPrint('Iniciando generación de código...');
 
-      if (!snapshot.exists) {
-        transaction.set(docRef, {'ultimoCodigo': 0});
-        return 'PROD-1';
-      }
+      final result = await FirebaseFirestore.instance.runTransaction<String>((transaction) async {
+        final snapshot = await transaction.get(docRef);
+        debugPrint('Snapshot obtenido: ${snapshot.exists}');
 
-      final ultimoCodigo = snapshot.data()!['ultimoCodigo'] as int;
-      final nuevoCodigo = ultimoCodigo + 1;
+        if (!snapshot.exists) {
+          debugPrint('Creando documento de contador por primera vez');
+          transaction.set(docRef, {'ultimoCodigo': 0});
+          return 'COD-1';
+        }
 
-      transaction.update(docRef, {'ultimoCodigo': nuevoCodigo});
-      return 'PROD-$nuevoCodigo';
-    });
+        final ultimoCodigo = snapshot.data()?['ultimoCodigo'] ?? 0;
+        final nuevoCodigo = (ultimoCodigo as int) + 1;
+
+        debugPrint('Actualizando contador a $nuevoCodigo');
+        transaction.update(docRef, {'ultimoCodigo': nuevoCodigo});
+        return 'COD-$nuevoCodigo';
+      });
+
+      debugPrint('Código generado con éxito: $result');
+      return result;
+    } catch (e, stackTrace) {
+      debugPrint('Error crítico en obtenerProximoCodigo: $e');
+      debugPrint(stackTrace.toString());
+      return 'COD-ERR';
+    }
   }
+
 
 
 

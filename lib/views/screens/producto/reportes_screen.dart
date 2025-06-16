@@ -172,10 +172,17 @@ class ReportesScreen extends StatelessWidget {
     final estatusSorted = estatusCount.entries.toList();
 
     // 3. Productos con stock crítico (<5 unidades)
-    final productosStockCritico = products.where((p) => p.cantidad < 5).toList();
+    final productosStockCritico = products.where((p) {
+      final cantidad = p.cantidad is num ? p.cantidad : num.tryParse(p.cantidad.toString()) ?? 0;
+      return cantidad < 5;
+    }).toList();
 
     // 4. Productos con exceso de stock (>10 unidades)
-    final productosExcesoStock = products.where((p) => p.cantidad > 10).toList();
+    final productosExcesoStock = products.where((p) {
+      final cantidad = p.cantidad is num ? p.cantidad : num.tryParse(p.cantidad.toString()) ?? 0;
+      return cantidad > 10;
+    }).toList();
+
 
     return Scaffold(
       appBar: AppBar(
@@ -309,14 +316,25 @@ class ReportesScreen extends StatelessWidget {
           color: Colors.black, // Texto en negro
         ),
       ),
-      colorList: data.map((entry) =>
-      entry.key == 'Activo' ? _getEstatusColor(entry.key) :
-      entry.key == 'Inactivo' ? _getEstatusColor(entry.key) :
-      _getCategoryColor(entry.key)
-      ).toList(),
+      colorList: _getColorListForData(data),                      // op 3
+      //colorList: data.map((entry) =>                              // op 2
+      //_getEstatusColor(entry.key) ?? _getCategoryColor(entry.key) // op 2
+      //entry.key == 'Activo' ? _getEstatusColor(entry.key) :    // op 1
+      //entry.key == 'Inactivo' ? _getEstatusColor(entry.key) :  // op 1
+      //_getCategoryColor(entry.key)                             // op 1
+      //).toList(),                                                  // op 2
       animationDuration: Duration.zero, // const Duration(milliseconds: 800),
     );
   }
+
+  // op 3
+  List<Color> _getColorListForData(List<MapEntry<String, int>> data) {
+    return data.map((entry) {
+      final estatusColor = _getEstatusColor(entry.key);
+      return estatusColor ?? _getCategoryColor(entry.key);
+    }).toList();
+  }
+
 
   // Métodos auxiliares
   Map<String, int> _getCategoriasCount(List<Producto> products) {
@@ -419,11 +437,14 @@ class ReportesScreen extends StatelessWidget {
 
   Color _getCategoryColor(String category) {
     final colors = {
-      'Construcción': Colors.yellow,
-      'Electrónica': Colors.blue,
-      'General': Colors.green,
-      'Herramientas': Colors.purple,
-      'Materiales': Colors.brown,
+      'Fallado': Colors.red,
+      'Mantenimiento': Colors.orange,
+      'No Operativo': Colors.grey,
+      'Nuevo': Colors.green,
+      'Operativo': Colors.blue,
+      'Siniestro': Colors.purple,
+      'Prestamo': Colors.yellow,
+      'Venta': Colors.teal,
     };
     return colors[category] ?? Colors.grey;
   }
@@ -431,8 +452,9 @@ class ReportesScreen extends StatelessWidget {
   Color _getEstatusColor(String estatus) {
     final colors = {
       'Activo': Colors.green,
-      'Inactivo': Colors.red,
-      'Mantenimiento': Colors.yellow,
+      'Baja': Colors.red,
+      'Custodia': Colors.blue,
+      'Fuera de Garantía': Colors.orange,
     };
     return colors[estatus] ?? Colors.grey;
   }

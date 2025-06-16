@@ -32,7 +32,7 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
     _serieController = TextEditingController(text: widget.producto.serie);
     _cantidadController = TextEditingController(text: widget.producto.cantidad.toString());
     _codigoQrController = TextEditingController(text: widget.producto.codigoQR);
-    _categoria = widget.producto.estatus;
+    _categoria = widget.producto.categoria;
     _estatus = widget.producto.estatus;
   }
 
@@ -130,6 +130,7 @@ class _EditarProductoScreenState extends State<EditarProductoScreen> {
         DropdownMenuItem(value: 'Siniestro', child: Text('Siniestro')),
         DropdownMenuItem(value: 'Prestamo', child: Text('Prestamo')),
         DropdownMenuItem(value: 'Venta', child: Text('Venta')),
+        //DropdownMenuItem(value: 'General', child: Text('General')),
       ],
       onChanged: (value) {
         if (value != null) {
