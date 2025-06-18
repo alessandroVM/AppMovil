@@ -208,7 +208,8 @@ class ReportesScreen extends StatelessWidget {
         entry.key,
         entry.value,
         products.length,
-        _getCategoryColor(entry.key),
+        //_getCategoryColor(entry.key),
+        _getColorForKey(entry.key),
       )), //////
       ],
     ),
@@ -230,7 +231,8 @@ class ReportesScreen extends StatelessWidget {
     entry.key,
     entry.value,
     products.length,
-    _getEstatusColor(entry.key),
+    //_getEstatusColor(entry.key),
+    _getColorForKey(entry.key),
     )), ///////
     ],
     ),
@@ -329,10 +331,14 @@ class ReportesScreen extends StatelessWidget {
 
   // op 3
   List<Color> _getColorListForData(List<MapEntry<String, int>> data) {
-    return data.map((entry) {
-      final estatusColor = _getEstatusColor(entry.key);
-      return estatusColor ?? _getCategoryColor(entry.key);
-    }).toList();
+   /*return data.map((entry) {
+      final estatusColor = _getCategoryColor(entry.key); //_getCategoryColor
+      return estatusColor ?? _getEstatusColor(entry.key); //_getEstatusColor
+    }).toList();*/
+
+    return data.map((entry) => _getColorForKey(entry.key)).toList();
+
+
   }
 
 
@@ -458,4 +464,58 @@ class ReportesScreen extends StatelessWidget {
     };
     return colors[estatus] ?? Colors.grey;
   }
+
+  /*
+  Color _getEstatusColor(String estatus) {
+    final normalized = estatus.trim();
+    final colors = {
+      'Activo': Colors.green,
+      'Baja': Colors.red,
+      'Custodia': Colors.blue,
+      'Fuera de Garantía': Colors.orange,
+    };
+    return colors[normalized] ?? Colors.grey;
+  }
+
+  Color _getCategoryColor(String category) {
+    final normalized = category.trim();
+    final colors = {
+      'Fallado': Colors.red,
+      'Mantenimiento': Colors.orange,
+      'No Operativo': Colors.grey,
+      'Nuevo': Colors.green,
+      'Operativo': Colors.blue,
+      'Siniestro': Colors.purple,
+      'Prestamo': Colors.yellow,
+      'Venta': Colors.teal,
+    };
+    return colors[normalized] ?? Colors.grey;
+  }*/
+
+  Color _getColorForKey(String key) {
+    final colors = {
+      // Estatus
+      'Activo': Colors.green,
+      'Baja': Colors.red,
+      'Custodia': Colors.blue,
+      'Fuera de Garantía': Colors.orange,
+
+      // Categorías
+      'Fallado': Colors.red,
+      'Mantenimiento': Colors.orange,
+      'No Operativo': Colors.grey,
+      'Nuevo': Colors.green,
+      'Operativo': Colors.blue,
+      'Siniestro': Colors.purple,
+      'Prestamo': Colors.yellow,
+      'Venta': Colors.teal,
+    };
+
+    return colors[key] ?? Colors.grey;
+  }
+
+
+
+
+
 }

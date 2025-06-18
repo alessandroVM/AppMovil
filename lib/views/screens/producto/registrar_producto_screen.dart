@@ -108,6 +108,17 @@ class _RegistrarProductoScreenState extends State<RegistrarProductoScreen> {
 
 
   Future<void> _submitForm(ProductController controller) async { // ✅ Cambia el tipo
+
+    // ✅ CAMBIO NUEVO: Validar si el código aún no se ha generado
+    if (_codigoProducto == null || _generandoCodigo) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Espere a que se genere el código'),
+        ),
+      );
+      return;
+    }
+
     if (!_formKey.currentState!.validate()) return;
 
     try {

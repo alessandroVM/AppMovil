@@ -212,7 +212,7 @@ class ProductController with ChangeNotifier {
   }*/
 
   // Generador de codigo de producto v2
-  Future<String> obtenerProximoCodigo() async {
+  /*Future<String> obtenerProximoCodigo() async {
     try {
       final docRef = FirebaseFirestore.instance.collection('contadores').doc('codigos_productos');
 
@@ -244,7 +244,47 @@ class ProductController with ChangeNotifier {
       debugPrint(stackTrace.toString());
       return 'COD-ERR';
     }
+  }*/
+
+
+  // Generador de codigo de producto v3
+  Future<String> obtenerProximoCodigo() async {
+    try {
+      // Obtener el producto con el código más alto ordenando desc
+      final querySnapshot = await FirebaseFirestore //new  //_firestore //old
+          .instance //new
+          .collection('productos')
+          .orderBy('codigo', descending: true)
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        // No hay productos registrados, retornar COD-1
+        return 'COD-1';
+      }
+
+      final ultimoCodigo = querySnapshot.docs.first.get('codigo') as String;
+
+      // Asumiendo formato 'COD-X'
+      final parts = ultimoCodigo.split('-');
+      if (parts.length != 2) {
+        // Si formato inesperado, empezar desde 1
+        return 'COD-1';
+      }
+
+      final numero = int.tryParse(parts[1]) ?? 0;
+
+      // Incrementar
+      final nuevoNumero = numero + 1;
+
+      return 'COD-$nuevoNumero';
+    } catch (e) {
+      debugPrint('Error obteniendo próximo código: $e'); //print o debugPrint
+      return 'COD-1'; // fallback para evitar crash
+    }
   }
+
+
 
 
 
