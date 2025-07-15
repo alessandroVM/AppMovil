@@ -1,4 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- ✅ AÑADIDO: Permiso para usar la cámara -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- ✅ AÑADIDO: Declaración de uso de la cámara (optimización para Play Store) -->
+    <uses-feature android:name="android.hardware.camera" android:required="true" />
+
     <application
         android:label="app_movil"
         android:name="${applicationName}"
@@ -13,7 +20,7 @@
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize">
             <!-- Specifies an Android theme to apply to this Activity as soon as
-                 the Android process has started. This theme is visible to the user
+                  the Android process has started. This theme is visible to the user
                  while the Flutter UI initializes. After that, this theme continues
                  to determine the Window background behind the Flutter UI. -->
             <meta-data

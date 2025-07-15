@@ -17,7 +17,8 @@ dependencies:
   pdf: ^3.10.2            # Generación de reportes (opcional)
   syncfusion_flutter_datagrid: ^23.1.40  # Tablas dinámicas (opcional)
   # qr_code_scanner: ^1.0.1flutterfire configure --project=inventario-canvia-app #no corre
-  flutter_barcode_scanner: ^2.0.0 # o la versión más reciente  #AGREGADO PARA QR
+  #flutter_barcode_scanner: ^2.0.0 # o la versión más reciente  #AGREGADO PARA QR
+  mobile_scanner: ^7.0.1
   qr_flutter: ^4.1.0 #AGREGADO PARA QR
   firebase_core: ^3.13.1 #AGREGADO FIREBASE
   firebase_auth: ^5.5.1    # Usa el valor "Latest" de `flutter pub outdated` AGREGADO FIREBASEflutter clean
