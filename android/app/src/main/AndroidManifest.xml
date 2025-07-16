@@ -5,7 +5,9 @@
 
     <!-- ✅ AÑADIDO: Declaración de uso de la cámara (optimización para Play Store) -->
     <uses-feature android:name="android.hardware.camera" android:required="true" />
-
+    <!-- AÑADIDO: PERMISO PARA GUARDAR ARCHIVOS -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <application
         android:label="app_movil"
         android:name="${applicationName}"

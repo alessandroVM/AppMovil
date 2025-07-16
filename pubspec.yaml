@@ -20,6 +20,9 @@ dependencies:
   #flutter_barcode_scanner: ^2.0.0 # o la versión más reciente  #AGREGADO PARA QR
   mobile_scanner: ^7.0.1
   qr_flutter: ^4.1.0 #AGREGADO PARA QR
+  path_provider: ^2.0.15
+  gallery_saver_plus: ^3.2.8
+  permission_handler: ^11.3.1
   firebase_core: ^3.13.1 #AGREGADO FIREBASE
   firebase_auth: ^5.5.1    # Usa el valor "Latest" de `flutter pub outdated` AGREGADO FIREBASEflutter clean
   cloud_firestore: ^5.6.8 #AGREGADO FIREBASE
